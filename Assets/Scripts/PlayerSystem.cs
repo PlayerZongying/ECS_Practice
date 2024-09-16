@@ -72,7 +72,8 @@ partial struct PlayerSystem : ISystem
                 
                 entityCommandBuffer.AddComponent(bulletEntity, new BulletComponent
                 {
-                    speed = 25f
+                    speed = 25f,
+                    size = 1f
                 });
                 
                 entityCommandBuffer.AddComponent(bulletEntity, new BulletLifeTimeComponent()
