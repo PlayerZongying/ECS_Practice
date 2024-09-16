@@ -51,16 +51,50 @@ partial struct PlayerSystem : ISystem
                       (Vector2)Camera.main.WorldToScreenPoint(playerTransform.Position);
         float angle = math.degrees(math.atan2(dir.y, dir.x)) ;
         
-        playerTransform.Rotation = Quaternion.AngleAxis(angle, Vector3.up);
+        playerTransform.Rotation = Quaternion.AngleAxis(angle - 90, -Vector3.up);
         state.EntityManager.SetComponentData(_playerEntity,playerTransform);
 
         // Debug.Log("Dir: " + _inputComponent.mousePosition.ToString());
 
     }
     
+    [BurstCompile]
     private void Shoot(ref SystemState state)
     {
-        
+        if (_inputComponent.bShoot)
+        {
+            for (int i = 0; i < _playerComponent.numberOfBulletToSpawn; i++)
+            {
+                EntityCommandBuffer entityCommandBuffer = new EntityCommandBuffer(Allocator.Temp);
+
+                Entity bulletEntity = _entityManager.Instantiate(_playerComponent.bulletPrefab);
+                
+                
+                entityCommandBuffer.AddComponent(bulletEntity, new BulletComponent
+                {
+                    speed = 25f
+                });
+                
+                entityCommandBuffer.AddComponent(bulletEntity, new BulletLifeTimeComponent()
+                {
+                    remainingLifeTime = 1.5f
+                });
+
+                LocalTransform bulletTransform = _entityManager.GetComponentData<LocalTransform>(bulletEntity);
+                LocalTransform playerTransform = _entityManager.GetComponentData<LocalTransform>(_playerEntity);
+
+                bulletTransform.Rotation = playerTransform.Rotation;
+
+                float randomOffset =
+                    UnityEngine.Random.Range(-_playerComponent.bulletSpread, _playerComponent.bulletSpread);
+                bulletTransform.Position = playerTransform.Position + (playerTransform.Forward() * 1.65f + bulletTransform.Right() * randomOffset);
+                
+                entityCommandBuffer.SetComponent(bulletEntity, bulletTransform);
+                entityCommandBuffer.Playback(_entityManager);
+                
+                entityCommandBuffer.Dispose();
+            }
+        }
     }
 
     // [BurstCompile]

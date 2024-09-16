@@ -135,6 +135,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Bullet
       objectReference: {fileID: 0}
+    - target: {fileID: 2951851533814875630, guid: 5c4cbc630f6d3e94cbdbc1181f2d50a7,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6623441892400386677, guid: 5c4cbc630f6d3e94cbdbc1181f2d50a7,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -202,6 +207,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 5112802205248038176, guid: aafbe4601d967574ca90014e3162d53e,
+        type: 3}
+      propertyPath: bulletSpread
+      value: 3.66
+      objectReference: {fileID: 0}
+    - target: {fileID: 5112802205248038176, guid: aafbe4601d967574ca90014e3162d53e,
+        type: 3}
+      propertyPath: numberOfBulletToSpawn
+      value: 25
       objectReference: {fileID: 0}
     - target: {fileID: 8519442534188218759, guid: aafbe4601d967574ca90014e3162d53e,
         type: 3}

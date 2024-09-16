@@ -14,11 +14,11 @@ public class PlayerAuthoring : MonoBehaviour
     {
         public override void Bake(PlayerAuthoring authoring)
         {
-            Entity playerEntity = GetEntity(TransformUsageFlags.None);
+            Entity playerEntity = GetEntity(TransformUsageFlags.Dynamic);
             AddComponent(playerEntity, new PlayerComponent
             {
                 moveSpeed = authoring.moveSpeed,
-                bulletPrefab = GetEntity(TransformUsageFlags.None),
+                bulletPrefab = GetEntity(authoring.bulletPrefab, TransformUsageFlags.Dynamic),
                 numberOfBulletToSpawn = authoring.numberOfBulletToSpawn,
                 bulletSpread = authoring.bulletSpread
             });
