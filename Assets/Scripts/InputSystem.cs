@@ -2,8 +2,6 @@ using Unity.Burst;
 using Unity.Entities;
 using UnityEngine;
 
-[BurstCompile]
-
 public partial class InputSystem : SystemBase
 {
     private PlayerControls _controls;

@@ -48,10 +48,10 @@ partial struct BulletSystem : ISystem
                 
                 //physics
                 NativeList<ColliderCastHit> hits = new NativeList<ColliderCastHit>(Allocator.Temp);
-                float3 point1 = new float3(bulletTransform.Position - bulletTransform.Forward() * 0.025f);
-                float3 point2 = new float3(bulletTransform.Position + bulletTransform.Forward() * 0.025f);
+                float3 point1 = new float3(bulletTransform.Position - bulletTransform.Forward() * 0.25f);
+                float3 point2 = new float3(bulletTransform.Position + bulletTransform.Forward() * 0.25f);
 
-                physicsWorldSingleton.CapsuleCastAll(point1, point2, bulletComponent.size / 100, float3.zero, .1f,
+                physicsWorldSingleton.CapsuleCastAll(point1, point2, bulletComponent.size / 2, float3.zero, 1f,
                     ref hits, new CollisionFilter
                     {
                         BelongsTo = (uint)CollisionLayer.Default,
