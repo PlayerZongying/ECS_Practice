@@ -5,5 +5,7 @@ public struct PlayerComponent : IComponentData
     public float moveSpeed;
     public Entity bulletPrefab;
     public int numberOfBulletToSpawn;
-    public float bulletSpread;
+    public float bulletSpreadWidth;
+    public float bulletSpreadAngle;
+    
 }

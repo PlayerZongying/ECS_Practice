@@ -262,7 +262,7 @@ MonoBehaviour:
   numOfEnemiesToSpawnIncrementAmount: 2
   maxNumberOfEnemiesToSpawnPerSecond: 200
   enemySpawnRadius: 40
-  minDistanceFromPlayer: 5
+  minDistanceFromPlayer: 10
   timeBeforeNextSpawn: 2
 --- !u!4 &1184505781
 Transform:
@@ -578,7 +578,17 @@ PrefabInstance:
     - target: {fileID: 5112802205248038176, guid: aafbe4601d967574ca90014e3162d53e,
         type: 3}
       propertyPath: bulletSpread
-      value: 3.66
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5112802205248038176, guid: aafbe4601d967574ca90014e3162d53e,
+        type: 3}
+      propertyPath: bulletSpreadAngle
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 5112802205248038176, guid: aafbe4601d967574ca90014e3162d53e,
+        type: 3}
+      propertyPath: bulletSpreadWidth
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5112802205248038176, guid: aafbe4601d967574ca90014e3162d53e,
         type: 3}

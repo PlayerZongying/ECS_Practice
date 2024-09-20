@@ -25,7 +25,7 @@ partial struct EnemySpawnerSystem : ISystem
         _random = Unity.Mathematics.Random.CreateFromIndex((uint)_enemySpawnerComponent.GetHashCode());
     }
 
-    // [BurstCompile]
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         _entityManager = state.EntityManager;
@@ -50,7 +50,8 @@ partial struct EnemySpawnerSystem : ISystem
                 LocalTransform enemyTransform = _entityManager.GetComponentData<LocalTransform>(enemyEntity);
                 LocalTransform playerTransform = _entityManager.GetComponentData<LocalTransform>(_playerEntity);
 
-                // random spawn point
+                //random spawn point
+                
                 float minDistanceSquared = _enemySpawnerComponent.minDistanceFromPlayer *
                                            _enemySpawnerComponent.minDistanceFromPlayer;
                 
@@ -72,11 +73,15 @@ partial struct EnemySpawnerSystem : ISystem
                 // spawn look direction
 
                 float3 direction = math.normalize(playerTransform.Position - enemyTransform.Position);
-                float angle = math.atan2(direction.z, direction.x);
-                quaternion lookRot = quaternion.AxisAngle(new float3(0,1,0), angle);
+                float angle = math.atan2(direction.z, direction.x) - math.PI/2;
+                quaternion lookRot = quaternion.AxisAngle(new float3(0,-1,0), angle);
                 enemyTransform.Rotation = lookRot;
                 
-                entityCommandBuffer.SetComponent(enemyEntity, new EnemyComponent
+                entityCommandBuffer.SetComponent(enemyEntity, enemyTransform);
+                
+                
+                
+                entityCommandBuffer.AddComponent(enemyEntity, new EnemyComponent
                 {
                     currentHealth = 100f,
                     enemySpeed = 1.25f,
@@ -85,6 +90,13 @@ partial struct EnemySpawnerSystem : ISystem
                 entityCommandBuffer.Playback(_entityManager);
                 entityCommandBuffer.Dispose();
             }
+
+            int desiredEnemiesPerWave = _enemySpawnerComponent.numOfEnemiesToSpawnPerSecond +
+                                        _enemySpawnerComponent.numOfEnemiesToSpawnIncrementAmount;
+            int enemiesPerWave = math.min(desiredEnemiesPerWave,
+                _enemySpawnerComponent.maxNumberOfEnemiesToSpawnPerSecond);
+
+            _enemySpawnerComponent.numOfEnemiesToSpawnPerSecond = enemiesPerWave;
 
             _enemySpawnerComponent.currentTimeBeforeSpawn = _enemySpawnerComponent.timeBeforeNextSpawn;
         }

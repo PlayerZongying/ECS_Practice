@@ -12,11 +12,11 @@ partial struct PlayerSystem : ISystem
 
     private Entity _playerEntity;
     private Entity _inputEntity;
-    
+
     private PlayerComponent _playerComponent;
     private InputComponent _inputComponent;
-    
-    
+
+
     // [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
@@ -33,31 +33,30 @@ partial struct PlayerSystem : ISystem
 
         _playerComponent = _entityManager.GetComponentData<PlayerComponent>(_playerEntity);
         _inputComponent = _entityManager.GetComponentData<InputComponent>(_inputEntity);
-        
-        
+
+
         Move(ref state);
         Shoot(ref state);
-
     }
 
     private void Move(ref SystemState state)
     {
         LocalTransform playerTransform = state.EntityManager.GetComponentData<LocalTransform>(_playerEntity);
         playerTransform.Position +=
-            new float3(_inputComponent.movement.x, 0, _inputComponent.movement.y) * _playerComponent.moveSpeed * SystemAPI.Time.DeltaTime;
-        
-        
+            new float3(_inputComponent.movement.x, 0, _inputComponent.movement.y) * _playerComponent.moveSpeed *
+            SystemAPI.Time.DeltaTime;
+
+
         Vector2 dir = (Vector2)_inputComponent.mousePosition -
                       (Vector2)Camera.main.WorldToScreenPoint(playerTransform.Position);
-        float angle = math.degrees(math.atan2(dir.y, dir.x)) ;
-        
+        float angle = math.degrees(math.atan2(dir.y, dir.x));
+
         playerTransform.Rotation = Quaternion.AngleAxis(angle - 90, -Vector3.up);
-        state.EntityManager.SetComponentData(_playerEntity,playerTransform);
+        state.EntityManager.SetComponentData(_playerEntity, playerTransform);
 
         // Debug.Log("Dir: " + _inputComponent.mousePosition.ToString());
-
     }
-    
+
     [BurstCompile]
     private void Shoot(ref SystemState state)
     {
@@ -68,14 +67,15 @@ partial struct PlayerSystem : ISystem
                 EntityCommandBuffer entityCommandBuffer = new EntityCommandBuffer(Allocator.Temp);
 
                 Entity bulletEntity = _entityManager.Instantiate(_playerComponent.bulletPrefab);
-                
-                
+
+
                 entityCommandBuffer.AddComponent(bulletEntity, new BulletComponent
                 {
                     speed = 25f,
-                    size = 1f
+                    size = 1f,
+                    damage = 10f,
                 });
-                
+
                 entityCommandBuffer.AddComponent(bulletEntity, new BulletLifeTimeComponent()
                 {
                     remainingLifeTime = 1.5f
@@ -87,12 +87,19 @@ partial struct PlayerSystem : ISystem
                 bulletTransform.Rotation = playerTransform.Rotation;
 
                 float randomOffset =
-                    UnityEngine.Random.Range(-_playerComponent.bulletSpread, _playerComponent.bulletSpread);
-                bulletTransform.Position = playerTransform.Position + (playerTransform.Forward() * 1.65f + bulletTransform.Right() * randomOffset);
-                
+                    UnityEngine.Random.Range(-_playerComponent.bulletSpreadWidth, _playerComponent.bulletSpreadWidth);
+                bulletTransform.Position = playerTransform.Position +
+                                           (playerTransform.Forward() * 1.65f + bulletTransform.Right() * randomOffset);
+
+                bulletTransform.Rotation = (Quaternion)quaternion.AxisAngle(new float3(0, 1, 0),
+                    randomOffset / _playerComponent.bulletSpreadWidth * _playerComponent.bulletSpreadAngle * math.PI /
+                    180f) * playerTransform.Rotation;
+
+
+
                 entityCommandBuffer.SetComponent(bulletEntity, bulletTransform);
                 entityCommandBuffer.Playback(_entityManager);
-                
+
                 entityCommandBuffer.Dispose();
             }
         }
@@ -101,6 +108,5 @@ partial struct PlayerSystem : ISystem
     // [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
-        
     }
 }

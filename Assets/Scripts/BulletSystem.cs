@@ -21,19 +21,21 @@ partial struct BulletSystem : ISystem
         NativeArray<Entity> allEntities = entityManager.GetAllEntities();
 
         PhysicsWorldSingleton physicsWorldSingleton = SystemAPI.GetSingleton<PhysicsWorldSingleton>();
-        
+
 
         foreach (Entity entity in allEntities)
         {
-            if (entityManager.HasComponent<BulletComponent>(entity) && entityManager.HasComponent<BulletLifeTimeComponent>(entity))
+            if (entityManager.HasComponent<BulletComponent>(entity) &&
+                entityManager.HasComponent<BulletLifeTimeComponent>(entity))
             {
                 LocalTransform bulletTransform = entityManager.GetComponentData<LocalTransform>(entity);
                 BulletComponent bulletComponent = entityManager.GetComponentData<BulletComponent>(entity);
 
                 // move bullet
-                bulletTransform.Position += bulletComponent.speed * SystemAPI.Time.DeltaTime * bulletTransform.Forward();
+                bulletTransform.Position +=
+                    bulletComponent.speed * SystemAPI.Time.DeltaTime * bulletTransform.Forward();
                 entityManager.SetComponentData(entity, bulletTransform);
-                
+
                 // reduce lifetime
                 BulletLifeTimeComponent bulletLifeTimeComponent =
                     entityManager.GetComponentData<BulletLifeTimeComponent>(entity);
@@ -44,27 +46,46 @@ partial struct BulletSystem : ISystem
                     entityManager.DestroyEntity(entity);
                     continue;
                 }
+
                 entityManager.SetComponentData(entity, bulletLifeTimeComponent);
-                
+
                 //physics
                 NativeList<ColliderCastHit> hits = new NativeList<ColliderCastHit>(Allocator.Temp);
                 float3 point1 = new float3(bulletTransform.Position - bulletTransform.Forward() * 0.015f);
                 float3 point2 = new float3(bulletTransform.Position + bulletTransform.Forward() * 0.015f);
 
+                uint layerMask = LayerMaskHelper.GetLayerMaskFromTwqLayer(CollisionLayer.Wall, CollisionLayer.Enemy);
+                
+                
                 physicsWorldSingleton.CapsuleCastAll(point1, point2, bulletComponent.size / 20, float3.zero, 1f,
                     ref hits, new CollisionFilter
                     {
                         BelongsTo = (uint)CollisionLayer.Default,
-                        CollidesWith = (uint)CollisionLayer.Wall
+                        CollidesWith = layerMask
                     });
 
                 if (hits.Length > 0)
                 {
+                    for (int i = 0; i < hits.Length; i++)
+                    {
+                        Entity hitEntity = hits[i].Entity;
+                        if (entityManager.HasComponent<EnemyComponent>(hitEntity))
+                        {
+                            EnemyComponent enemyComponent = entityManager.GetComponentData<EnemyComponent>(hitEntity);
+                            enemyComponent.currentHealth -= bulletComponent.damage;
+                            entityManager.SetComponentData(hitEntity, enemyComponent);
+
+                            if (enemyComponent.currentHealth <= 0)
+                            {
+                                entityManager.DestroyEntity(hitEntity);
+                            }
+                        }
+                    }
+
                     entityManager.DestroyEntity(entity);
                 }
 
                 hits.Dispose();
-
             }
         }
     }
@@ -72,6 +93,5 @@ partial struct BulletSystem : ISystem
     [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
-        
     }
 }
