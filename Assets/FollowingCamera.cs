@@ -12,7 +12,7 @@ public class FollowingCamera : MonoBehaviour
 
     private Vector3 _playerPos;
 
-    private Camera _camera;
+    [SerializeField]private Camera camera;
 
     [Range(0f, 100f)] public float camaraHeight = 10f;
     [Range(0f, 100f)] public float camaraFollowSpeed = 10f;
@@ -24,14 +24,16 @@ public class FollowingCamera : MonoBehaviour
         _playerEntity = _entityManager.CreateEntityQuery(ComponentType.ReadOnly<PlayerComponent>())
             .GetSingletonEntity();
 
-        _camera = Camera.main;
     }
 
     // Update is called once per frame
     void Update()
     {
+        _entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+        _playerEntity = _entityManager.CreateEntityQuery(ComponentType.ReadOnly<PlayerComponent>())
+            .GetSingletonEntity();
         _playerPos = _entityManager.GetComponentData<LocalTransform>(_playerEntity).Position;
-        _camera.transform.position = Vector3.Lerp(_camera.transform.position, _playerPos + Vector3.up * camaraHeight,
+        camera.transform.position = Vector3.Lerp(camera.transform.position, _playerPos + Vector3.up * camaraHeight,
             camaraFollowSpeed * Time.deltaTime);
     }
 }

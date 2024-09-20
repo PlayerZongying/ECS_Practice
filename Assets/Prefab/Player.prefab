@@ -123,7 +123,8 @@ MonoBehaviour:
   bulletPrefab: {fileID: 2951851533814875630, guid: 5c4cbc630f6d3e94cbdbc1181f2d50a7,
     type: 3}
   numberOfBulletToSpawn: 50
-  bulletSpread: 5
+  bulletSpreadWidth: 1
+  bulletSpreadAngle: 30
 --- !u!1 &4614723423304843394
 GameObject:
   m_ObjectHideFlags: 0
